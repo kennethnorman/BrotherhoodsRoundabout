@@ -58,9 +58,78 @@ td.TDR
 	font-size:normal;
 }
 
-p.copyrighttext
-{
-	color:#darkgray;
-	font-size:small;
-	font-family:"Verdana";
+
+#tc-headerlogo { 
+	font: 1.8em Impact;
+    background: #C8352E; 
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+	//color: #D8C0C5;
+}
+
+#tc-headerlogo img{ 
+    max-width: 100%;
+}
+
+
+#tc-headertext { 
+	font: 1.8em Impact;
+    //background: #C8352E; 
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+	//color: #D8C0C5;
+}
+
+
+
+#tc-bannertext { 
+	font: 1.6em Impact;
+    background: #C8352E; 
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+	color: #D8C0C5;
+}
+
+
+
+#tc-songlist { 
+	font: 1.4em Impact;
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+	color: #D8C0C5;
+}
+
+#br-nextevent, #br-allevents { 
+	font: 1.4em Impact;
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+	color: #D8C0C5;
+}
+
+#tc-infofooter { 
+	font: 1.0em Impact;
+    background: #C8352E; 
+    margin-left: 2%;
+    margin-right: 2%;
+    padding:10px 10px 10px 10px; 
+    text-align: center; 
+}
+
+#tc-infofooter a, #tc-infofooter a:link { 
+    text-decoration:none;
+	color: #D8C0C5;
+}
+#tc-infofooter a:hover, #tc-infofooter a:focus { 
+    background: #C8352E; 
+	color: #F1CAAD;
 }

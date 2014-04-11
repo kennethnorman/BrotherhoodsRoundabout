@@ -32,20 +32,19 @@ function UpdateCalendarEvents(sourceFile) {
 
             var entry = $(el),
                 title = entry[0].title.$t,
-                when = entry[0].gd$when[0].startTime;
+                when = new Date(entry[0].gd$when[0].startTime);
 
             foundevents = true;
 
             if (nextevent) {
                 if (i === 0) {
-                    nextevent.appendChild(document.createTextNode(title + "; " + when));
+                    nextevent.appendChild(document.createTextNode(when.toLocaleDateString() + " : " + title));
                 }
             }
 
             if (allevents) {
+                allevents.appendChild(document.createTextNode(when.toLocaleDateString() + " : "));
                 allevents.appendChild(document.createTextNode(title));
-                allevents.appendChild(document.createElement("br"));
-                allevents.appendChild(document.createTextNode(when));
                 allevents.appendChild(document.createElement("br"));
                 allevents.appendChild(document.createElement("br"));
             }
