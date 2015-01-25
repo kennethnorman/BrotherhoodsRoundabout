@@ -68,12 +68,12 @@ function UpdateCalendarEvents(sourceFile) {
 
             if (nextevent) {
                 if (i === 0) {
-                    nextevent.appendChild(document.createTextNode(when.toLocaleDateString() + " : " + title));
+                    nextevent.appendChild(document.createTextNode(when.toLocaleDateString("en-GB") + " : " + title));
                 }
             }
 
             if (allevents) {
-                allevents.appendChild(document.createTextNode(when.toLocaleDateString() + " : "));
+                allevents.appendChild(document.createTextNode(when.toLocaleDateString("en-GB") + " : "));
                 allevents.appendChild(document.createTextNode(title));
                 allevents.appendChild(document.createElement("br"));
                 allevents.appendChild(document.createElement("br"));
