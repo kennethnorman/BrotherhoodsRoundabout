@@ -1,90 +1,127 @@
 // br-diary.js
 
-var nextevent = document.getElementById("br-nextevent");
-var allevents = document.getElementById("br-allevents");
-var pagemessage = document.getElementById("br-pagemessage");
-var pagemessage2 = document.getElementById("br-pagemessage2");
-var foundevents = false;
-$("br-nextevent").text("Working...");
-$("br-allevents").text("Working...");
+      // Your Client ID can be retrieved from your project in the Google
+      // Developer Console, https://console.developers.google.com
+      var CLIENT_ID = '1040191233193-jf54albj9gi8s70up20i27l36o393deb.apps.googleusercontent.com';
 
-pagemessage.innerText = "Working...";
-pagemessage2.innerText = "Working...";
+      var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
+      /**
+       * Check if current user has authorized this application.
+       */
+      function checkAuth() {
+        gapi.auth.authorize(
+          {
+            'client_id': CLIENT_ID,
+            'scope': SCOPES.join(' '),
+            'immediate': true
+          }, handleAuthResult);
+      }
 
-
-$(document).ready(UpdateCalendarEvents(
-//"http://www.google.com/calendar/feeds/af9f3hobdapolfftcs4o2usr34%40group.calendar.google.com/public/full?singleevents=true&futureevents=true&orderby=starttime&sortorder=ascending&alt=json"
-"https://www.google.com/calendar/feeds/af9f3hobdapolfftcs4o2usr34%40group.calendar.google.com/public/basic?singleevents=true&futureevents=true&orderby=starttime&sortorder=ascending&alt=json"
-));
-
-var d = new Date();
-Math.seedrandom(d.getTime());
-
-var bannerpic = document.getElementById("tc-headerlogo");
-var bannerimage = document.getElementById("tc-headerimage");
-bannerpic.onclick = function(){
-	var r= Math.random();
-	var numImages= 2;
-	var ri= ((r*10)%numImages)+1;
-	var randomIndex= Math.floor(ri);
-	switch (randomIndex) {
-	case 1: bannerimage.src = "brlogo2014.jpg";
-		break;
-	case 2: bannerimage.src = "br1.png";
-		break;
-	}
-}
-
-/**/
-function UpdateCalendarEvents(sourceFile) {
-
-    $.getJSON(sourceFile, function (data) {
-
-        if (data.feed.entry.length != 0) {
-            pagemessage.innerText = "";
-            $("br-pagemessage").hide();
-            pagemessage2.innerText = "";
-            $("br-pagemessage2").hide();
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+      function handleAuthResult(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          loadCalendarApi();
+        } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
         }
+      }
 
-        $.each(data.feed.entry, function (i, el) {
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+      function handleAuthClick(event) {
+        gapi.auth.authorize(
+          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+          handleAuthResult);
+        return false;
+      }
 
-            var entry = $(el),
-                title = entry[0].title.$t,
-                summary = entry[0].summary.$t;
-			var when = new Date("1990-01-01");
-			
-			// Format is "When: Sat 12 Sep 2015<br>\n\n\n<br>Event Status: confirmed"
-			var sum = summary.split("<br>");
-			for (var sumIndex= 0; sumIndex<sum.length; sumIndex++) {
-				var entry= sum[sumIndex].split(":");
-				if (entry[0] == "When") {
-					when = new Date(entry[1].trim());
-				}
-			}
+      /**
+       * Load Google Calendar client library. List upcoming events
+       * once client library is loaded.
+       */
+      function loadCalendarApi() {
+        gapi.client.load('calendar', 'v3', listUpcomingEvents);
+      }
 
-            foundevents = true;
-
-            if (nextevent) {
-                if (i === 0) {
-                    nextevent.appendChild(document.createTextNode(when.toLocaleDateString("en-GB") + " : " + title));
-                }
-            }
-
-            if (allevents) {
-                allevents.appendChild(document.createTextNode(when.toLocaleDateString("en-GB") + " : "));
-                allevents.appendChild(document.createTextNode(title));
-                allevents.appendChild(document.createElement("br"));
-                allevents.appendChild(document.createElement("br"));
-            }
+      /**
+       * Print the summary and start datetime/date of the next ten events in
+       * the authorized user's calendar. If no events are found an
+       * appropriate message is printed.
+       */
+      function listUpcomingEvents() {
+        var request = gapi.client.calendar.events.list({
+          //'calendarId': 'primary',
+		  'calendarId': 'af9f3hobdapolfftcs4o2usr34@group.calendar.google.com',
+          'timeMin': (new Date()).toISOString(),
+          'showDeleted': false,
+          'singleEvents': true,
+          //'maxResults': 20,
+          'orderBy': 'startTime'
         });
-    })
-    .fail(function () {
-        pagemessage.innerText = "No dates found.";
-        pagemessage2.innerText = "No dates found.";
 
-    });
+        request.execute(function(resp) {
+		
+          document.getElementById('br-pagemessage').style.display = 'none';
+          document.getElementById('br-pagemessage2').style.display = 'none';
+		
+          var events = resp.items;
 
-}
+          if (events.length > 0) {
+            for (i = 0; i < events.length; i++) {
+              var event = events[i];
+              var when = event.start.dateTime;
+              if (!when) {
+                when = event.start.date;
+              }
+			  var eventText = new Date(when).toLocaleDateString('en-GB') + ' : ' + event.summary
+              appendAllEvents(eventText)
+			  
+				if (i === 0) {
+					appendNextEvent(eventText);
+				}
+            }
+          } else {
+            appendAllEvents('No upcoming events.');
+            appendNextEvent('No upcoming events.');
+          }
 
+        });
+      }
+
+      /**
+       * Append element to the body containing the given message
+       * as its text node.
+       *
+       * @param {string} message Text to be placed in element.
+       */
+      function appendAllEvents(message) {
+        var allEvents = document.getElementById('br-allevents');
+		if (allEvents) {
+			allEvents.appendChild(document.createTextNode(message));
+			allEvents.appendChild(document.createElement("br"));
+			allEvents.appendChild(document.createElement("br"));
+		}
+      }
+
+      function appendNextEvent(message) {
+        var nextEvent = document.getElementById('br-nextevent');
+		if (nextEvent) {
+			nextEvent.appendChild(document.createTextNode(message));
+			nextEvent.appendChild(document.createElement("br"));
+			nextEvent.appendChild(document.createElement("br"));
+		}
+      }
+	  
